@@ -1,2 +1,2 @@
 # weather_app
-JavaScript Weather Site
+JavaScript Weather Site for learning to work with an API.
