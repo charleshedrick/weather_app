@@ -1,64 +1,61 @@
 "use strict";
 
-// SELECT ELEMENTS
-//const iconElement = document.querySelector(".weather-icon"); //need to find a way to select the icons with the NWS data (no easy icon values)
+// Select Elements
 const tempElement = document.querySelector(".temp-value p");
 const descElement = document.querySelector(".temp-description p");
 const locationElement = document.querySelector(".location p");
 const notificationElement = document.querySelector(".notification");
+const humidityElement = document.querySelector(".humidity");
+const chanceOfRainElement = document.querySelector(".chance-of-rain");
+const windSpeedElement = document.querySelector(".wind-speed");
+const windDirectionElement = ""; // Note: This is an empty variable
 
-// APP DATA
-const weather = {};
-
-weather.temperature = {
-  unit: "celsius",
+// App Data
+const weather = {
+  temperature: {}, // Empty object for temperature data
 };
 
-// APP CONSTS AND VARS
-const KELVIN = 273;
-
-// CHECK IF BROWSER SUPPORTS GEOLOCATION
+// Check if Browser Supports Geolocation
 if ("geolocation" in navigator) {
   navigator.geolocation.getCurrentPosition(setPosition, showError);
 } else {
   notificationElement.style.display = "block";
-  notificationElement.innerHTML = "<p>Browser doesn't support geolocation";
+  notificationElement.innerHTML = "<p>Browser doesn't support geolocation</p>";
 }
 
-// SET USER'S POSITION
+// Set User's Position
 function setPosition(position) {
-  let latitude = position.coords.latitude;
-  let longitude = position.coords.longitude;
-
+  const latitude = position.coords.latitude;
+  const longitude = position.coords.longitude;
   getWeather(latitude, longitude);
 }
 
-// SHOW ERROR WHEN THERE IS AN ISSUE WITH THE GEOLOCAITON SERVICE
+// Show Error when There's an Issue with the Geolocation Service
 function showError(error) {
   notificationElement.style.display = "block";
-  notificationElement.innerHTML = `<p> ${error.message} </p>`;
+  notificationElement.innerHTML = `<p>${error.message}</p>`;
 }
 
-// GET WEATHER FROM WEATHER.GOV API
+// Get Weather from Weather.Gov API
 function getWeather(latitude, longitude) {
   const apiUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
 
-  // Make the GET request using Fetch API
   fetch(apiUrl)
+    // This .then block handles the response from the first fetch()
+    // It receives a Response object as the argument (response)
+    // You can extract JSON data from the response using response.json()
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
-    // lat/long data from site is used to fetch local forecast data
     .then((locationData) => {
-      const forecastUrl = locationData.properties.forecast;
-      console.log(locationData);
+      const hourlyForecastUrl = locationData.properties.forecastHourly;
       weather.city = locationData.properties.relativeLocation.properties.city;
       weather.state = locationData.properties.relativeLocation.properties.state;
-      console.log(locationData.properties.relativeLocation.properties.state);
-      return fetch(forecastUrl); //fetches the current locations weather data from the API and formats it to a fetchable api url.
+      console.log("location data", locationData);
+      return fetch(hourlyForecastUrl);
     })
     .then((response) => {
       if (!response.ok) {
@@ -66,16 +63,25 @@ function getWeather(latitude, longitude) {
       }
       return response.json();
     })
-    .then((forecastData) => {
-      // Handle and display the forecast data
-      console.log(forecastData);
-      // Extract and display the forecast details as needed
+    .then((hourlyForecastData) => {
       weather.temperature.value =
-        forecastData.properties.periods[0].temperature;
-      weather.description = forecastData.properties.periods[0].shortForecast;
-      console.log(forecastData.properties.periods[0].shortForecast);
-      //weather.iconId = data.weather[0].icon;
+        hourlyForecastData.properties.periods[0].temperature;
+      weather.description =
+        hourlyForecastData.properties.periods[0].shortForecast;
+      weather.humidity =
+        hourlyForecastData.properties.periods[0].relativeHumidity.value;
+      weather.chanceOfRain =
+        hourlyForecastData.properties.periods[0].probabilityOfPrecipitation.value;
+      weather.windSpeed = hourlyForecastData.properties.periods[0].windSpeed;
+      weather.windDirection =
+        hourlyForecastData.properties.periods[0].windDirection;
+      console.log("hourly forecast data", hourlyForecastData);
+
+      updateWeatherIconFromDescription(weather.description);
+      //console.log("updateWeatherIconFromDescription", weather.description);
+      //console.log(hourlyForecastData);
     })
+
     .then(() => {
       displayWeather();
     })
@@ -84,9 +90,46 @@ function getWeather(latitude, longitude) {
     });
 }
 
-// DISPLAY WEATHER TO UI
+// Display Weather to UI
 function displayWeather() {
+  locationElement.innerHTML = `${weather.city}, ${weather.state}`;
   tempElement.innerHTML = `${weather.temperature.value}°<span>F</span>`;
   descElement.innerHTML = weather.description;
-  locationElement.innerHTML = `${weather.city}, ${weather.state}`;
+  humidityElement.innerHTML = `<i class="bi bi-water"></i> ${weather.humidity}%`;
+  chanceOfRainElement.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i> ${weather.chanceOfRain}%`;
+  windSpeedElement.innerHTML = `<i class="bi bi-wind weather-info-icon"></i> ${weather.windSpeed} ${weather.windDirection}`;
+}
+
+// BOOTSTRAP WEATHER ICOS
+// Mapping between keywords and Bootstrap icon classes
+const keywordToIcon = {
+  clear: "bi-sun", // Example icons; adjust as needed
+  sunny: "bi-sun",
+  rain: "bi-cloud-rain",
+  showers: "bi-cloud-rain",
+  thunderstorms: "bi-cloud-lightning-rain",
+  snow: "bi-snow",
+  sleet: "cloud-sleet-fill",
+  fog: "bi-cloud-fog",
+  overcast: "bi-clouds",
+  cloudy: "bi-clouds",
+  hail: "bi-cloud-hail",
+  haze: "bi-cloud-haze",
+};
+
+// Function to extract keywords from description and update the weather icon
+function updateWeatherIconFromDescription(description) {
+  console.log("weather icon data from API:", description);
+  const iconElement = document.getElementById("weather-icon");
+  const keywords = description.toLowerCase().split(" "); // creates an array with the data
+  console.log(keywords);
+  let iconClass = "bi-question"; // Default icon if no match found
+
+  for (const keyword of keywords) {
+    if (keywordToIcon[keyword]) {
+      iconClass = keywordToIcon[keyword];
+      break; // Stop searching after the first match
+    }
+  }
+  iconElement.className = `bi ${iconClass} main-weather-icon`;
 }
