@@ -20,17 +20,18 @@
       <div class="notification"></div>
       <div class="weather-container">
         <div class="weather-conditions">
+          <div class="temp-description">
+            <h2 class="description-header">Currently</h2>
+            <p>-</p>
+          </div>
+          <div class="forecast-time">
+            <p>4pm to 5pm</p>
+          </div>
           <div class="weather-icon">
             <i id="weather-icon" class="bi"></i>
           </div>
-          <div class="forecast-time">
-            <p>forecast for 4pm to 5pm</p>
-          </div>
           <div class="temp-value">
             <p>- °</p>
-          </div>
-          <div class="temp-description">
-            <p>-</p>
           </div>
         </div>
         <div class="weather-info">
@@ -42,8 +43,14 @@
         </div>
       </div>
       <!-- <div class="weather-warning">weather warning here</div> -->
-      <div class="detailed-forecast">
-        <p>-</p>
+      <div class="hourly-forecast">
+        <div class="hour-1 hourly-forecast-box">1</div>
+        <div class="hour-2 hourly-forecast-box">2</div>
+        <div class="hour-3 hourly-forecast-box">3</div>
+        <div class="hour-4 hourly-forecast-box">4</div>
+        <div class="hour-5 hourly-forecast-box">5</div>
+        <div class="hour-6 hourly-forecast-box">6</div>
+        <div class="hour-7 hourly-forecast-box">7</div>
       </div>
     </div>
     <script src="app.js"></script>

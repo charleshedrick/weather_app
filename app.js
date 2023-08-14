@@ -41,7 +41,7 @@ function getWeather(latitude, longitude) {
   const apiUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
 
   fetch(apiUrl)
-    // This .then block handles the response from the first fetch()
+    // This .then() block handles the response from the first fetch()
     // It receives a Response object as the argument (response)
     // You can extract JSON data from the response using response.json()
     .then((response) => {
@@ -50,6 +50,7 @@ function getWeather(latitude, longitude) {
       }
       return response.json();
     })
+
     .then((locationData) => {
       const hourlyForecastUrl = locationData.properties.forecastHourly;
       weather.city = locationData.properties.relativeLocation.properties.city;
@@ -57,12 +58,14 @@ function getWeather(latitude, longitude) {
       console.log("location data", locationData);
       return fetch(hourlyForecastUrl);
     })
+
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
+
     .then((hourlyForecastData) => {
       weather.temperature.value =
         hourlyForecastData.properties.periods[0].temperature;
@@ -92,32 +95,37 @@ function getWeather(latitude, longitude) {
 
 // Display Weather to UI
 function displayWeather() {
-  locationElement.innerHTML = `${weather.city}, ${weather.state}`;
+  locationElement.innerHTML = `<i class="bi bi-geo-alt"></i> <span>${weather.city}, ${weather.state}</span>`;
   tempElement.innerHTML = `${weather.temperature.value}°<span>F</span>`;
   descElement.innerHTML = weather.description;
-  humidityElement.innerHTML = `<i class="bi bi-water"></i> ${weather.humidity}%`;
-  chanceOfRainElement.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i> ${weather.chanceOfRain}%`;
+  humidityElement.innerHTML = `<i class="bi bi-water"></i><span>${weather.humidity}%</span>`;
+  chanceOfRainElement.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i><span>${weather.chanceOfRain}%</span>`;
   windSpeedElement.innerHTML = `<i class="bi bi-wind weather-info-icon"></i> ${weather.windSpeed} ${weather.windDirection}`;
 }
 
-// BOOTSTRAP WEATHER ICOS
+// BOOTSTRAP WEATHER ICONS ////////////////////////
 // Mapping between keywords and Bootstrap icon classes
 const keywordToIcon = {
   clear: "bi-sun", // Example icons; adjust as needed
-  sunny: "bi-sun",
-  rain: "bi-cloud-rain",
-  showers: "bi-cloud-rain",
-  thunderstorms: "bi-cloud-lightning-rain",
-  snow: "bi-snow",
-  sleet: "cloud-sleet-fill",
-  fog: "bi-cloud-fog",
-  overcast: "bi-clouds",
   cloudy: "bi-clouds",
+  fog: "bi-cloud-fog",
   hail: "bi-cloud-hail",
   haze: "bi-cloud-haze",
+  hurricane: "bi-hurricane",
+  lightning: "bi-cloud-lightning",
+  overcast: "bi-clouds",
+  partly: "bi-cloud-sun",
+  rain: "bi-cloud-rain",
+  showers: "bi-cloud-rain",
+  sleet: "cloud-sleet-fill",
+  snow: "bi-snow",
+  sun: "bi-sun",
+  sunny: "bi-sun",
+  thunderstorms: "bi-cloud-lightning-rain",
+  tropical: "bi-tropical-storm",
 };
 
-// Function to extract keywords from description and update the weather icon
+// Extract keywords from description and update the weather icon
 function updateWeatherIconFromDescription(description) {
   console.log("weather icon data from API:", description);
   const iconElement = document.getElementById("weather-icon");
@@ -125,9 +133,11 @@ function updateWeatherIconFromDescription(description) {
   console.log(keywords);
   let iconClass = "bi-question"; // Default icon if no match found
 
+  // MATCH KEY
   for (const keyword of keywords) {
     if (keywordToIcon[keyword]) {
       iconClass = keywordToIcon[keyword];
+      console.log(iconClass);
       break; // Stop searching after the first match
     }
   }
