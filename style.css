@@ -120,16 +120,13 @@ body {
   padding: 5px 30px;
 }
 
-.forecast-time {
+.timestamp {
   margin: 0 auto;
   padding: 0 30px;
   text-align: left;
   font-size: 0.6em;
 }
 
-.forecast-time p {
-  margin: 0 auto;
-}
 .weather-info {
   display: flex;
   flex-direction: column;
@@ -181,13 +178,16 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
 .hourly-forecast-box {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   /* background-color: lightgray; */
   height: 100px; /* Set the desired height */
-  border: 1px solid;
   align-items: center;
   justify-content: center;
 }

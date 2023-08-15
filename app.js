@@ -2,6 +2,7 @@
 
 // Select Elements
 const tempElement = document.querySelector(".temp-value p");
+console.log(tempElement);
 const descElement = document.querySelector(".temp-description p");
 const locationElement = document.querySelector(".location p");
 const notificationElement = document.querySelector(".notification");
@@ -9,6 +10,8 @@ const humidityElement = document.querySelector(".humidity");
 const chanceOfRainElement = document.querySelector(".chance-of-rain");
 const windSpeedElement = document.querySelector(".wind-speed");
 const windDirectionElement = ""; // Note: This is an empty variable
+const timestampElement = document.querySelector(".timestamp p");
+console.log(timestampElement);
 
 // App Data
 const weather = {
@@ -52,13 +55,17 @@ function getWeather(latitude, longitude) {
     })
 
     .then((locationData) => {
-      const hourlyForecastUrl = locationData.properties.forecastHourly;
+      //this .then() block receives the HTTP response from the API request, which includes data in JSON format. the argument 'locationData' is assigned the parsed JSON data.
+      console.log("location data", locationData);
+
       weather.city = locationData.properties.relativeLocation.properties.city;
       weather.state = locationData.properties.relativeLocation.properties.state;
-      console.log("location data", locationData);
-      return fetch(hourlyForecastUrl);
+
+      const hourlyForecastUrl = locationData.properties.forecastHourly;
+      return fetch(hourlyForecastUrl); //detailed forecast data
     })
 
+    // second api json request for detailed hourly data
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -80,9 +87,22 @@ function getWeather(latitude, longitude) {
         hourlyForecastData.properties.periods[0].windDirection;
       console.log("hourly forecast data", hourlyForecastData);
 
-      updateWeatherIconFromDescription(weather.description);
-      //console.log("updateWeatherIconFromDescription", weather.description);
-      //console.log(hourlyForecastData);
+      updateWeatherIconFromDescription(weather.description); //can reuse this?
+
+      //TIMESTAMP
+      const iso8601Timestamp =
+        hourlyForecastData.properties.periods[0].startTime;
+      const timestamp = new Date(iso8601Timestamp);
+      const options = {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+      };
+
+      const formattedTimestamp = timestamp.toLocaleString("en-US", options);
+      console.log(formattedTimestamp); // Output: August 14, 2023, 8:00:00 PM EDT
+      weather.timestamp = formattedTimestamp;
+      console.log(weather.timestamp);
     })
 
     .then(() => {
@@ -93,7 +113,7 @@ function getWeather(latitude, longitude) {
     });
 }
 
-// Display Weather to UI
+// Display Weather to UI. This function is passed through the above function in a .then()
 function displayWeather() {
   locationElement.innerHTML = `<i class="bi bi-geo-alt"></i> <span>${weather.city}, ${weather.state}</span>`;
   tempElement.innerHTML = `${weather.temperature.value}°<span>F</span>`;
@@ -101,6 +121,7 @@ function displayWeather() {
   humidityElement.innerHTML = `<i class="bi bi-water"></i><span>${weather.humidity}%</span>`;
   chanceOfRainElement.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i><span>${weather.chanceOfRain}%</span>`;
   windSpeedElement.innerHTML = `<i class="bi bi-wind weather-info-icon"></i> ${weather.windSpeed} ${weather.windDirection}`;
+  timestampElement.innerHTML = `<span>${weather.timestamp}</span>`;
 }
 
 // BOOTSTRAP WEATHER ICONS ////////////////////////
