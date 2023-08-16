@@ -66,20 +66,21 @@ body {
   grid-template-columns: 1fr 1fr; /* Both columns have equal width */
 }
 .weather-conditions {
-  height: 260px;
+  height: 300px;
   width: 60vw;
   /* border-right: 2px solid; */
 }
 
-.weather-icon {
+#weather-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 33%;
+  font-size: 6em;
 }
 
-.weather-icon .bi-rainbow {
-  font-size: 90px;
+.hourly-forecast-icon {
+  font-size: 40px;
 }
 
 .forecast-time {
@@ -110,21 +111,21 @@ body {
   margin: 0 auto;
   padding: 0 30px;
   text-align: left;
-  font-size: larger;
+  font-size: 1.6em;
 }
 .temp-description p {
   margin: 0 auto;
   color: #293251;
   text-align: left;
-  font-size: 0.9em;
-  padding: 5px 30px;
+  font-size: 1em;
+  padding: 5px 30px 0;
 }
 
 .timestamp {
   margin: 0 auto;
   padding: 0 30px;
   text-align: left;
-  font-size: 0.6em;
+  font-size: 0.7em;
 }
 
 .weather-info {

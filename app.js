@@ -2,7 +2,6 @@
 
 // Select Elements
 const tempElement = document.querySelector(".temp-value p");
-console.log(tempElement);
 const descElement = document.querySelector(".temp-description p");
 const locationElement = document.querySelector(".location p");
 const notificationElement = document.querySelector(".notification");
@@ -11,7 +10,6 @@ const chanceOfRainElement = document.querySelector(".chance-of-rain");
 const windSpeedElement = document.querySelector(".wind-speed");
 const windDirectionElement = ""; // Note: This is an empty variable
 const timestampElement = document.querySelector(".timestamp p");
-console.log(timestampElement);
 
 // App Data
 const weather = {
@@ -100,9 +98,44 @@ function getWeather(latitude, longitude) {
       };
 
       const formattedTimestamp = timestamp.toLocaleString("en-US", options);
-      console.log(formattedTimestamp); // Output: August 14, 2023, 8:00:00 PM EDT
       weather.timestamp = formattedTimestamp;
-      console.log(weather.timestamp);
+
+      // HOURLY FORECAST //
+      const hourlyForecastContainer =
+        document.querySelector(".hourly-forecast");
+      console.log(hourlyForecastContainer);
+
+      for (let i = 0; i < 5; i++) {
+        const forecast = hourlyForecastData.properties.periods[i];
+        //console.log(forecast);
+        const forecastBox = document.createElement("div");
+        forecastBox.classList.add(`hour-${i + 1}`, "hourly-forecast-box");
+
+        const icon = document.createElement("i");
+        //const forecastShort = forecast.shortForecast.toLowerCase();
+        //const iconClass = keywordToIcon[forecastShort];
+        //icon.classList.add("hourly-forecast-icon", iconClass);
+
+        updateWeatherIconFromDescription(forecast.shortForecast, icon);
+
+        // HOURLY FORECAST TIMESTAMP
+        const hourlyTime = document.createElement("div");
+        hourlyTime.classList.add("hourly-time");
+        hourlyTime.textContent = `${i + 1}hr`;
+
+        // FORECAST BOX //
+        forecastBox.appendChild(icon);
+        forecastBox.appendChild(hourlyTime);
+        hourlyForecastContainer.appendChild(forecastBox);
+
+        // CURRENT FORECAST ICON //
+        const iconElementForWeatherIcon =
+          document.querySelector(".weather-icon i");
+        const iconClassForWeatherIcon = updateWeatherIconFromDescription(
+          weather.description
+        );
+        iconElementForWeatherIcon.className = `bi ${iconClassForWeatherIcon}`;
+      }
     })
 
     .then(() => {
@@ -147,20 +180,29 @@ const keywordToIcon = {
 };
 
 // Extract keywords from description and update the weather icon
-function updateWeatherIconFromDescription(description) {
-  console.log("weather icon data from API:", description);
-  const iconElement = document.getElementById("weather-icon");
-  const keywords = description.toLowerCase().split(" "); // creates an array with the data
-  console.log(keywords);
+function updateWeatherIconFromDescription(description, iconElement) {
+  //console.log("weather icon data from API:", description);
+  if (!description) {
+    return; // Return early if description is undefined or empty
+  }
+  const keywords = description.toLowerCase().split(" ");
+  //console.log(keywords);
   let iconClass = "bi-question"; // Default icon if no match found
 
   // MATCH KEY
   for (const keyword of keywords) {
     if (keywordToIcon[keyword]) {
       iconClass = keywordToIcon[keyword];
-      console.log(iconClass);
+      //console.log(iconClass);
       break; // Stop searching after the first match
     }
   }
-  iconElement.className = `bi ${iconClass} main-weather-icon`;
+
+  // Check if iconElement is defined before updating its className
+  // HOURLY FORECAST ICON //
+  if (iconElement) {
+    iconElement.className = `hourly-forecast-icon bi ${iconClass}`;
+  }
+
+  return iconClass;
 }
