@@ -53,7 +53,7 @@ function getWeather(latitude, longitude) {
     })
 
     .then((locationData) => {
-      //this .then() block receives the HTTP response from the API request, which includes data in JSON format. the argument 'locationData' is assigned the parsed JSON data.
+      //this .then() receives the HTTP response from the API request, which includes data in JSON format. the argument 'locationData' is assigned the parsed JSON data.
       console.log("location data", locationData);
 
       weather.city = locationData.properties.relativeLocation.properties.city;

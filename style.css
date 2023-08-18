@@ -34,9 +34,10 @@ body {
   height: 100vh;
   box-sizing: border-box;
   margin: 0;
-  padding: 15px;
+  /* padding: 15px; */
 }
 
+/* location header */
 .location {
   display: flex;
 }
@@ -48,6 +49,7 @@ body {
   text-align: center;
   font-size: 0.9em;
 }
+
 .notification {
   /* background-color: #f8d7da; */
   display: none;
@@ -174,6 +176,11 @@ body {
   margin: 0 auto;
 }
 
+.nav-icon {
+  color: #dfdbd3;
+  font-size: 1.2em;
+}
+
 /* WEEKLY FORECAST */
 .hourly-forecast {
   display: flex;
@@ -191,4 +198,23 @@ body {
   height: 100px; /* Set the desired height */
   align-items: center;
   justify-content: center;
+}
+
+/* NAVIGATION */
+
+.navigation {
+  margin-top: auto; /* moves to bottom */
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100vw;
+  height: 3em;
+
+  background-color: #293251;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dfdbd3;
 }
