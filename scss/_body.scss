@@ -27,6 +27,7 @@ body {
   height: 150px;
   justify-content: center;
   width: 85vw;
+  margin: 20px 0 40px;
 }
 
 .temp-value {
@@ -34,6 +35,7 @@ body {
   p {
     padding: 0;
     margin: 0;
+    line-height: 1;
     font-size: 100px;
     text-align: center;
     cursor: pointer;
@@ -48,7 +50,6 @@ body {
   flex-direction: column;
 }
 
-// CURRENT WEATHER DETAILS
 .weather-info {
   align-items: center;
   display: flex;
@@ -68,25 +69,29 @@ body {
   padding: 7px;
   width: 100px;
 
-  // &sm {
-  //     width: 100px;
-  //   }
+  @media screen and (min-width: 576px) {
+    width: 150px;
+  }
 
-  //   &lg {
-  //       min-width: 90px;
-  //       max-width: 105px;
-  //   }
-  // }
+  @media screen and (min-width: 992px) {
+    min-width: 90px;
+    max-width: 105px;
+  }
 }
 
-// HOURLY FORECAST
 .hourly-forecast {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  justify-content: space-between;
-  margin-top: 25px;
   width: 90%;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 25px;
+
+  overflow-y: auto;
 }
 
 .hourly-forecast-box {
@@ -95,23 +100,32 @@ body {
   border-radius: 1em;
   border: 3px solid $dark-color;
   display: flex;
-  flex-direction: column;
   flex: 1;
+  width: 100%;
   height: 200px;
   justify-content: center;
 
   &:not(:last-child) {
     margin-right: 5px;
   }
+
+  @media screen and (max-width: 768px) {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
 }
 
 .hourly-temp {
   font-size: 1.5em;
-  font-weight: 600;
-  padding: 5px 0;
+  font-weight: 500;
+  padding: 8px 0;
 }
 
-.hourly-probability {
-  font-weight: 600;
-  padding-bottom: 5px;
+// .hourly-probability {
+//   padding-bottom: 8px;
+// }
+
+.hourly-time {
+  //margin-top: 10px;
+  font-weight: 500;
 }

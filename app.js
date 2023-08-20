@@ -81,6 +81,7 @@ function updateWeather(hourlyForecastData) {
   weather.chanceOfRain = period.probabilityOfPrecipitation.value;
   weather.windSpeed = period.windSpeed;
   weather.windDirection = period.windDirection;
+  weather.isDaytime = period.isDaytime;
 
   const iso8601Timestamp = period.startTime;
   const timestamp = new Date(iso8601Timestamp);
@@ -92,9 +93,11 @@ function updateWeather(hourlyForecastData) {
   weather.timestamp = timestamp.toLocaleString("en-US", options);
 }
 
-// HOURLY FORECAST (5)
+// HOURLY FORECAST //
 function updateForecast(hourlyForecastData) {
-  for (let i = 1; i < 6; i++) {
+  console.log(hourlyForecastData.properties.periods[0].isDaytime);
+
+  for (let i = 1; i < 49; i++) {
     const forecast = hourlyForecastData.properties.periods[i];
     const forecastBox = document.createElement("div");
     forecastBox.classList.add(`hour-${i + 1}`, "hourly-forecast-box");
@@ -107,7 +110,35 @@ function updateForecast(hourlyForecastData) {
     const hourlyTemp = document.createElement("div");
     const tempByHour = hourlyForecastData.properties.periods[i].temperature;
     hourlyTemp.classList.add("hourly-temp");
-    hourlyTemp.textContent = tempByHour;
+    hourlyTemp.textContent = `${tempByHour}°`;
+
+    // PROBABILITY OF PRECIPITATION
+    const hourlyProbability = document.createElement("div");
+    const probability =
+      hourlyForecastData.properties.periods[i].probabilityOfPrecipitation.value;
+
+    hourlyProbability.classList.add("hourly-probability");
+
+    // Create the icon element for probability and set its class
+    const dropletIcon = document.createElement("i");
+    dropletIcon.classList.add("bi", "bi-cloud-rain", "humidity");
+
+    // Set the text content with the icon and probability value
+    hourlyProbability.innerHTML = `${dropletIcon.outerHTML} ${probability}%`;
+
+    // RELATIVE HUMIDITY
+    const hourlyHumidity = document.createElement("div");
+    const humidity =
+      hourlyForecastData.properties.periods[i].relativeHumidity.value;
+
+    hourlyHumidity.classList.add("hourly-humidity");
+
+    // Create the icon element for humidity and set its class
+    const humidityIcon = document.createElement("i");
+    humidityIcon.classList.add("bi", "bi-water", "humidity");
+
+    // Set the text content with the icon and humidity value
+    hourlyHumidity.innerHTML = `${humidityIcon.outerHTML} ${humidity}%`;
 
     // TIME
     const hourlyTime = document.createElement("div");
@@ -121,23 +152,10 @@ function updateForecast(hourlyForecastData) {
     hourlyTime.classList.add("hourly-time");
     hourlyTime.textContent = formattedTimestamp;
 
-    // PROBABILITY OF PRECIPITATION
-    const hourlyProbability = document.createElement("div");
-    const probability =
-      hourlyForecastData.properties.periods[i].probabilityOfPrecipitation.value;
-
-    hourlyProbability.classList.add("hourly-probability");
-
-    // Create the icon element and set its class
-    const dropletIcon = document.createElement("i");
-    dropletIcon.classList.add("bi", "bi-water", "humidity");
-
-    // Set the text content with the icon and probability value
-    hourlyProbability.innerHTML = `${dropletIcon.outerHTML} ${probability}%`;
-
     forecastBox.appendChild(icon);
     forecastBox.appendChild(hourlyTemp);
     forecastBox.appendChild(hourlyProbability);
+    forecastBox.appendChild(hourlyHumidity); // Add humidity div
     forecastBox.appendChild(hourlyTime);
     elements.hourlyForecastContainer.appendChild(forecastBox);
   }
@@ -187,8 +205,7 @@ function handleFetchError(error) {
   // Handle the error in a user-friendly way
 }
 
-// BOOTSTRAP WEATHER ICONS ////////////////////////
-// Mapping between keywords and Bootstrap icon classes
+// BOOTSTRAP WEATHER ICON MAPPING //
 const keywordToIcon = {
   clear: "bi-sun", // Example icons; adjust as needed
   cloudy: "bi-clouds",
@@ -197,6 +214,7 @@ const keywordToIcon = {
   haze: "bi-cloud-haze",
   hurricane: "bi-hurricane",
   lightning: "bi-cloud-lightning",
+  light: "bi-cloud-drizzle",
   overcast: "bi-clouds",
   partly: "bi-cloud-sun",
   rain: "bi-cloud-rain",
@@ -209,15 +227,47 @@ const keywordToIcon = {
   tropical: "bi-tropical-storm",
 };
 
+// BOOTSTRAP WEATHER ICON MAPPING //
+const dayKeywordToIcon = {
+  clear: "bi-sun", // Example icons; adjust as needed
+  cloudy: "bi-clouds",
+  fog: "bi-cloud-fog",
+  hail: "bi-cloud-hail",
+  haze: "bi-cloud-haze",
+  hurricane: "bi-hurricane",
+  lightning: "bi-cloud-lightning",
+  light: "bi-cloud-drizzle",
+  overcast: "bi-clouds",
+  partly: "bi-cloud-sun",
+  rain: "bi-cloud-rain",
+  showers: "bi-cloud-rain",
+  sleet: "cloud-sleet-fill",
+  snow: "bi-snow",
+  sun: "bi-sun",
+  sunny: "bi-sun",
+  thunderstorms: "bi-cloud-lightning-rain",
+  tropical: "bi-tropical-storm",
+};
+
+const nightKeywordToIcon = {
+  // Nighttime icons
+  clear: "bi-moon",
+  cloudy: "bi-clouds",
+  fog: "bi-cloud-fog",
+  // ... (add more nighttime icons)
+};
+
 // Extract keywords from description and update the weather icon
-function updateWeatherIconFromDescription(description, iconElement) {
-  //console.log("weather icon data from API:", description);
+function updateWeatherIconFromDescription(description, isDaytime, iconElement) {
   if (!description) {
     return; // Return early if description is undefined or empty
   }
-  const keywords = description.toLowerCase().split(" ");
-  //console.log(keywords);
+
   let iconClass = "bi-question"; // Default icon if no match found
+  const keywords = description.toLowerCase().split(" ");
+
+  // Select the appropriate icon mapping based on isDaytime
+  const keywordToIcon = isDaytime ? dayKeywordToIcon : nightKeywordToIcon;
 
   // MATCH KEY
   for (const keyword of keywords) {
