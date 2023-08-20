@@ -37,7 +37,6 @@ function showError(error) {
 // INITIAL API
 function fetchWeather(latitude, longitude) {
   const apiUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
-
   fetch(apiUrl)
     .then((response) => {
       if (!response.ok) {
@@ -49,8 +48,11 @@ function fetchWeather(latitude, longitude) {
       weather.city = locationData.properties.relativeLocation.properties.city;
       weather.state = locationData.properties.relativeLocation.properties.state;
 
+      console.log(locationData);
       const hourlyForecastUrl = locationData.properties.forecastHourly;
+      const dailyForecastURL = locationData.properties.forecast;
       return fetch(hourlyForecastUrl);
+      return fetch(dailyForecastURL);
     })
     .then((response) => {
       if (!response.ok) {
@@ -235,7 +237,7 @@ const dayKeywordToIcon = {
 };
 
 const nightKeywordToIcon = {
-  clear: "bi-moon",
+  clear: "bi-moon-stars",
   cloudy: "bi-clouds",
   fog: "bi-cloud-fog",
   hail: "bi-cloud-hail",
@@ -249,8 +251,8 @@ const nightKeywordToIcon = {
   showers: "bi-cloud-rain",
   sleet: "cloud-sleet-fill",
   snow: "bi-snow",
-  sun: "bi-moon",
-  sunny: "bi-moon",
+  sun: "bi-moon-stars",
+  sunny: "bi-moon-stars",
   thunderstorms: "bi-cloud-lightning-rain",
   tropical: "bi-tropical-storm",
 };
