@@ -34,6 +34,7 @@ function showError(error) {
   displayNotification(error.message);
 }
 
+// INITIAL API
 function fetchWeather(latitude, longitude) {
   const apiUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
 
@@ -91,30 +92,52 @@ function updateWeather(hourlyForecastData) {
   weather.timestamp = timestamp.toLocaleString("en-US", options);
 }
 
+// HOURLY FORECAST (5)
 function updateForecast(hourlyForecastData) {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 1; i < 6; i++) {
     const forecast = hourlyForecastData.properties.periods[i];
     const forecastBox = document.createElement("div");
     forecastBox.classList.add(`hour-${i + 1}`, "hourly-forecast-box");
 
+    // ICON
     const icon = document.createElement("i");
     updateIconFromDescription(forecast.shortForecast, icon);
 
+    // TEMP
+    const hourlyTemp = document.createElement("div");
+    const tempByHour = hourlyForecastData.properties.periods[i].temperature;
+    hourlyTemp.classList.add("hourly-temp");
+    hourlyTemp.textContent = tempByHour;
+
+    // TIME
     const hourlyTime = document.createElement("div");
     const forecastByHour = hourlyForecastData.properties.periods[i].startTime;
-
     const iso8601Timestamp = forecastByHour;
     const timestamp = new Date(iso8601Timestamp);
     const options = {
       hour: "numeric",
     };
     const formattedTimestamp = timestamp.toLocaleString("en-US", options);
-    //console.log(formattedTimestamp);
-
     hourlyTime.classList.add("hourly-time");
-    hourlyTime.textContent = formattedTimestamp; // Display the formatted timestamp
+    hourlyTime.textContent = formattedTimestamp;
+
+    // PROBABILITY OF PRECIPITATION
+    const hourlyProbability = document.createElement("div");
+    const probability =
+      hourlyForecastData.properties.periods[i].probabilityOfPrecipitation.value;
+
+    hourlyProbability.classList.add("hourly-probability");
+
+    // Create the icon element and set its class
+    const dropletIcon = document.createElement("i");
+    dropletIcon.classList.add("bi", "bi-water", "humidity");
+
+    // Set the text content with the icon and probability value
+    hourlyProbability.innerHTML = `${dropletIcon.outerHTML} ${probability}%`;
 
     forecastBox.appendChild(icon);
+    forecastBox.appendChild(hourlyTemp);
+    forecastBox.appendChild(hourlyProbability);
     forecastBox.appendChild(hourlyTime);
     elements.hourlyForecastContainer.appendChild(forecastBox);
   }

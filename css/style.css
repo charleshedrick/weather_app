@@ -40,29 +40,28 @@
 }
 
 body {
+  background: linear-gradient(to bottom, rgb(172, 233, 228), rgb(100, 161, 185));
+  color: #5b497b;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(to bottom, rgb(172, 233, 228), rgb(100, 161, 185));
-  color: #5b497b;
 }
 
 .container {
+  align-items: center;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
   height: 100vh;
-  box-sizing: border-box;
   margin: 0;
-  /* padding: 15px; */
 }
 
 .weather-conditions {
-  height: 150px;
   align-items: center;
+  display: flex;
+  height: 150px;
   justify-content: center;
   width: 85vw;
-  display: flex;
 }
 
 .temp-value {
@@ -85,47 +84,67 @@ body {
 }
 
 .weather-info {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   width: 80vw;
 }
 
 .weather-info-item {
+  align-items: center;
+  background-color: rgb(189, 216, 207);
+  border-radius: 1em;
+  border: 3px solid #5b497b;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   height: 90px;
-  width: 91px;
-  border: 2px solid #5b497b;
-  border-radius: 1em;
-  padding: 10px;
-  background-color: rgb(189, 216, 207);
+  justify-content: space-between;
+  padding: 7px;
+  width: 90px;
 }
-
-.large {
-  min-width: 80px;
-  max-width: 120px;
+.weather-info-itemsm .large {
+  min-width: 90px;
+  max-width: 105px;
+}
+.weather-info-itemsmlg .large {
+  min-width: 90px;
+  max-width: 105px;
 }
 
 /* WEEKLY FORECAST */
 .hourly-forecast {
-  display: flex;
-  justify-content: space-between;
-  width: 90%;
   align-items: center;
+  display: flex;
   justify-content: center;
+  justify-content: space-between;
+  margin-top: 25px;
+  width: 90%;
 }
 
 .hourly-forecast-box {
+  align-items: center;
+  background-color: rgb(189, 216, 207);
+  border-radius: 1em;
+  border: 3px solid #5b497b;
   display: flex;
   flex-direction: column;
   flex: 1;
-  /* background-color: lightgray; */
-  height: 100px; /* Set the desired height */
-  align-items: center;
+  height: 200px;
   justify-content: center;
+}
+.hourly-forecast-box:not(:last-child) {
+  margin-right: 5px;
+}
+
+.hourly-temp {
+  font-size: 1.5em;
+  font-weight: 600;
+  padding: 5px 0;
+}
+
+.hourly-probability {
+  font-weight: 600;
+  padding-bottom: 5px;
 }
 
 .navigation {
@@ -174,4 +193,8 @@ body {
 
 .hourly-forecast-icon {
   font-size: 40px;
+}
+
+.humidity {
+  font-size: 1em;
 }
