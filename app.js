@@ -62,6 +62,11 @@ function fetchWeather(latitude, longitude) {
       updateWeather(hourlyForecastData);
       updateForecast(hourlyForecastData);
       updateForecastIcon();
+      updateWeatherIcon(
+        weather.description,
+        weather.isDaytime,
+        document.querySelector(".weather-icon i")
+      );
       displayWeather();
       console.log(hourlyForecastData);
     })
@@ -82,7 +87,7 @@ function updateWeather(hourlyForecastData) {
   weather.windSpeed = period.windSpeed;
   weather.windDirection = period.windDirection;
   weather.isDaytime = period.isDaytime;
-
+  //console.log(weather.isDaytime);
   const iso8601Timestamp = period.startTime;
   const timestamp = new Date(iso8601Timestamp);
   const options = {
@@ -91,12 +96,11 @@ function updateWeather(hourlyForecastData) {
     hour: "numeric",
   };
   weather.timestamp = timestamp.toLocaleString("en-US", options);
+  console.log(weather.isDaytime);
 }
 
 // HOURLY FORECAST //
 function updateForecast(hourlyForecastData) {
-  console.log(hourlyForecastData.properties.periods[0].isDaytime);
-
   for (let i = 1; i < 49; i++) {
     const forecast = hourlyForecastData.properties.periods[i];
     const forecastBox = document.createElement("div");
@@ -104,7 +108,7 @@ function updateForecast(hourlyForecastData) {
 
     // ICON
     const icon = document.createElement("i");
-    updateIconFromDescription(forecast.shortForecast, icon);
+    updateWeatherIcon(forecast.shortForecast, forecast.isDaytime, icon);
 
     // TEMP
     const hourlyTemp = document.createElement("div");
@@ -161,6 +165,7 @@ function updateForecast(hourlyForecastData) {
   }
 }
 
+// MAIN WEATHER ICON
 function updateIconFromDescription(description, iconElement) {
   if (!description) {
     return;
@@ -184,10 +189,11 @@ function updateIconFromDescription(description, iconElement) {
 
 function updateForecastIcon() {
   const iconElementForWeatherIcon = document.querySelector(".weather-icon i");
-  const iconClassForWeatherIcon = updateIconFromDescription(
-    weather.description
+  const iconClassForWeatherIcon = updateWeatherIcon(
+    weather.description,
+    weather.isDaytime,
+    iconElementForWeatherIcon
   );
-  iconElementForWeatherIcon.className = `bi ${iconClassForWeatherIcon}`;
 }
 
 function displayWeather() {
@@ -206,28 +212,7 @@ function handleFetchError(error) {
 }
 
 // BOOTSTRAP WEATHER ICON MAPPING //
-const keywordToIcon = {
-  clear: "bi-sun", // Example icons; adjust as needed
-  cloudy: "bi-clouds",
-  fog: "bi-cloud-fog",
-  hail: "bi-cloud-hail",
-  haze: "bi-cloud-haze",
-  hurricane: "bi-hurricane",
-  lightning: "bi-cloud-lightning",
-  light: "bi-cloud-drizzle",
-  overcast: "bi-clouds",
-  partly: "bi-cloud-sun",
-  rain: "bi-cloud-rain",
-  showers: "bi-cloud-rain",
-  sleet: "cloud-sleet-fill",
-  snow: "bi-snow",
-  sun: "bi-sun",
-  sunny: "bi-sun",
-  thunderstorms: "bi-cloud-lightning-rain",
-  tropical: "bi-tropical-storm",
-};
-
-// BOOTSTRAP WEATHER ICON MAPPING //
+const keywordToIcon = "";
 const dayKeywordToIcon = {
   clear: "bi-sun", // Example icons; adjust as needed
   cloudy: "bi-clouds",
@@ -250,36 +235,47 @@ const dayKeywordToIcon = {
 };
 
 const nightKeywordToIcon = {
-  // Nighttime icons
   clear: "bi-moon",
   cloudy: "bi-clouds",
   fog: "bi-cloud-fog",
-  // ... (add more nighttime icons)
+  hail: "bi-cloud-hail",
+  haze: "bi-cloud-haze",
+  hurricane: "bi-hurricane",
+  lightning: "bi-cloud-lightning",
+  light: "bi-cloud-drizzle",
+  overcast: "bi-clouds",
+  partly: "bi-cloud-moon",
+  rain: "bi-cloud-rain",
+  showers: "bi-cloud-rain",
+  sleet: "cloud-sleet-fill",
+  snow: "bi-snow",
+  sun: "bi-moon",
+  sunny: "bi-moon",
+  thunderstorms: "bi-cloud-lightning-rain",
+  tropical: "bi-tropical-storm",
 };
 
-// Extract keywords from description and update the weather icon
-function updateWeatherIconFromDescription(description, isDaytime, iconElement) {
+// Update weather icon based on description and daytime
+function updateWeatherIcon(description, isDaytime, iconElement) {
   if (!description) {
-    return; // Return early if description is undefined or empty
+    return;
   }
 
-  let iconClass = "bi-question"; // Default icon if no match found
   const keywords = description.toLowerCase().split(" ");
+  let iconClass = "bi-question"; // Default icon if no match found
 
-  // Select the appropriate icon mapping based on isDaytime
+  // Select icon mappings based on daytime
   const keywordToIcon = isDaytime ? dayKeywordToIcon : nightKeywordToIcon;
 
-  // MATCH KEY
+  // Match keywords to icon mappings
   for (const keyword of keywords) {
     if (keywordToIcon[keyword]) {
       iconClass = keywordToIcon[keyword];
-      //console.log(iconClass);
-      break; // Stop searching after the first match
+      break;
     }
   }
 
-  // Check if iconElement is defined before updating its className
-  // HOURLY FORECAST ICON //
+  // Update the weather icon element's class
   if (iconElement) {
     iconElement.className = `hourly-forecast-icon bi ${iconClass}`;
   }

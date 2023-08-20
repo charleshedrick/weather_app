@@ -163,7 +163,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   width: 100vw;
-  height: 5em;
+  height: 60px;
   border-radius: 10px 10px 0 0;
   background-color: #5b497b;
 }
