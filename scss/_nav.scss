@@ -1,0 +1,15 @@
+.navigation {
+  margin-top: auto; /* moves to bottom */
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100vw;
+  height: 3em;
+
+  background-color: $dark-color;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

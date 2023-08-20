@@ -1,160 +1,167 @@
 "use strict";
 
-// Select Elements
-const tempElement = document.querySelector(".temp-value p");
-const descElement = document.querySelector(".temp-description p");
-const locationElement = document.querySelector(".location p");
-const notificationElement = document.querySelector(".notification");
-const humidityElement = document.querySelector(".humidity");
-const chanceOfRainElement = document.querySelector(".chance-of-rain");
-const windSpeedElement = document.querySelector(".wind-speed");
-const windDirectionElement = ""; // Note: This is an empty variable
-const timestampElement = document.querySelector(".timestamp p");
+const elements = {
+  temp: document.querySelector(".temp-value p"),
+  shortForecast: document.querySelector(".short-forecast p"),
+  location: document.querySelector(".location"),
+  notificationt: document.querySelector(".notification"),
+  humidity: document.querySelector(".humidity"),
+  chanceOfRain: document.querySelector(".chance-of-rain"),
+  windSpeed: document.querySelector(".wind-speed"),
+  windDirection: "", // Note: This is an empty variable
+  timestamp: document.querySelector(".timestamp p"),
 
-// App Data
-const weather = {
-  temperature: {}, // Empty object for temperature data
+  hourlyForecastContainer: document.querySelector(".hourly-forecast"),
 };
 
-// Check if Browser Supports Geolocation
+const weather = {
+  temperature: {},
+};
+
 if ("geolocation" in navigator) {
   navigator.geolocation.getCurrentPosition(setPosition, showError);
 } else {
-  notificationElement.style.display = "block";
-  notificationElement.innerHTML = "<p>Browser doesn't support geolocation</p>";
+  displayNotification("Browser doesn't support geolocation");
 }
 
-// Set User's Position
 function setPosition(position) {
   const latitude = position.coords.latitude;
   const longitude = position.coords.longitude;
-  getWeather(latitude, longitude);
+  fetchWeather(latitude, longitude);
 }
 
-// Show Error when There's an Issue with the Geolocation Service
 function showError(error) {
-  notificationElement.style.display = "block";
-  notificationElement.innerHTML = `<p>${error.message}</p>`;
+  displayNotification(error.message);
 }
 
-// Get Weather from Weather.Gov API
-function getWeather(latitude, longitude) {
+function fetchWeather(latitude, longitude) {
   const apiUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
 
   fetch(apiUrl)
-    // This .then() block handles the response from the first fetch()
-    // It receives a Response object as the argument (response)
-    // You can extract JSON data from the response using response.json()
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
-
     .then((locationData) => {
-      //this .then() receives the HTTP response from the API request, which includes data in JSON format. the argument 'locationData' is assigned the parsed JSON data.
-      console.log("location data", locationData);
-
       weather.city = locationData.properties.relativeLocation.properties.city;
       weather.state = locationData.properties.relativeLocation.properties.state;
 
       const hourlyForecastUrl = locationData.properties.forecastHourly;
-      return fetch(hourlyForecastUrl); //detailed forecast data
+      return fetch(hourlyForecastUrl);
     })
-
-    // second api json request for detailed hourly data
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
-
     .then((hourlyForecastData) => {
-      weather.temperature.value =
-        hourlyForecastData.properties.periods[0].temperature;
-      weather.description =
-        hourlyForecastData.properties.periods[0].shortForecast;
-      weather.humidity =
-        hourlyForecastData.properties.periods[0].relativeHumidity.value;
-      weather.chanceOfRain =
-        hourlyForecastData.properties.periods[0].probabilityOfPrecipitation.value;
-      weather.windSpeed = hourlyForecastData.properties.periods[0].windSpeed;
-      weather.windDirection =
-        hourlyForecastData.properties.periods[0].windDirection;
-      console.log("hourly forecast data", hourlyForecastData);
-
-      updateWeatherIconFromDescription(weather.description); //can reuse this?
-
-      //TIMESTAMP
-      const iso8601Timestamp =
-        hourlyForecastData.properties.periods[0].startTime;
-      const timestamp = new Date(iso8601Timestamp);
-      const options = {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-      };
-
-      const formattedTimestamp = timestamp.toLocaleString("en-US", options);
-      weather.timestamp = formattedTimestamp;
-
-      // HOURLY FORECAST //
-      const hourlyForecastContainer =
-        document.querySelector(".hourly-forecast");
-      console.log(hourlyForecastContainer);
-
-      for (let i = 0; i < 5; i++) {
-        const forecast = hourlyForecastData.properties.periods[i];
-        //console.log(forecast);
-        const forecastBox = document.createElement("div");
-        forecastBox.classList.add(`hour-${i + 1}`, "hourly-forecast-box");
-
-        const icon = document.createElement("i");
-        //const forecastShort = forecast.shortForecast.toLowerCase();
-        //const iconClass = keywordToIcon[forecastShort];
-        //icon.classList.add("hourly-forecast-icon", iconClass);
-
-        updateWeatherIconFromDescription(forecast.shortForecast, icon);
-
-        // HOURLY FORECAST TIMESTAMP
-        const hourlyTime = document.createElement("div");
-        hourlyTime.classList.add("hourly-time");
-        hourlyTime.textContent = `${i + 1}hr`;
-
-        // FORECAST BOX //
-        forecastBox.appendChild(icon);
-        forecastBox.appendChild(hourlyTime);
-        hourlyForecastContainer.appendChild(forecastBox);
-
-        // CURRENT FORECAST ICON //
-        const iconElementForWeatherIcon =
-          document.querySelector(".weather-icon i");
-        const iconClassForWeatherIcon = updateWeatherIconFromDescription(
-          weather.description
-        );
-        iconElementForWeatherIcon.className = `bi ${iconClassForWeatherIcon}`;
-      }
-    })
-
-    .then(() => {
+      updateWeather(hourlyForecastData);
+      updateForecast(hourlyForecastData);
+      updateForecastIcon();
       displayWeather();
+      console.log(hourlyForecastData);
     })
+    // .then((dailyForecastData) => {
+    //   updateDailyForecast(dailyForecastData);
+    // })
     .catch((error) => {
-      console.error("Fetch error:", error);
+      handleFetchError(error);
     });
 }
 
-// Display Weather to UI. This function is passed through the above function in a .then()
+function updateWeather(hourlyForecastData) {
+  const period = hourlyForecastData.properties.periods[0];
+  weather.temperature.value = period.temperature;
+  weather.description = period.shortForecast;
+  weather.humidity = period.relativeHumidity.value;
+  weather.chanceOfRain = period.probabilityOfPrecipitation.value;
+  weather.windSpeed = period.windSpeed;
+  weather.windDirection = period.windDirection;
+
+  const iso8601Timestamp = period.startTime;
+  const timestamp = new Date(iso8601Timestamp);
+  const options = {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+  };
+  weather.timestamp = timestamp.toLocaleString("en-US", options);
+}
+
+function updateForecast(hourlyForecastData) {
+  for (let i = 0; i < 5; i++) {
+    const forecast = hourlyForecastData.properties.periods[i];
+    const forecastBox = document.createElement("div");
+    forecastBox.classList.add(`hour-${i + 1}`, "hourly-forecast-box");
+
+    const icon = document.createElement("i");
+    updateIconFromDescription(forecast.shortForecast, icon);
+
+    const hourlyTime = document.createElement("div");
+    const forecastByHour = hourlyForecastData.properties.periods[i].startTime;
+
+    const iso8601Timestamp = forecastByHour;
+    const timestamp = new Date(iso8601Timestamp);
+    const options = {
+      hour: "numeric",
+    };
+    const formattedTimestamp = timestamp.toLocaleString("en-US", options);
+    //console.log(formattedTimestamp);
+
+    hourlyTime.classList.add("hourly-time");
+    hourlyTime.textContent = formattedTimestamp; // Display the formatted timestamp
+
+    forecastBox.appendChild(icon);
+    forecastBox.appendChild(hourlyTime);
+    elements.hourlyForecastContainer.appendChild(forecastBox);
+  }
+}
+
+function updateIconFromDescription(description, iconElement) {
+  if (!description) {
+    return;
+  }
+  const keywords = description.toLowerCase().split(" ");
+  let iconClass = "bi-question";
+
+  for (const keyword of keywords) {
+    if (keywordToIcon[keyword]) {
+      iconClass = keywordToIcon[keyword];
+      break;
+    }
+  }
+
+  if (iconElement) {
+    iconElement.className = `hourly-forecast-icon bi ${iconClass}`;
+  }
+
+  return iconClass;
+}
+
+function updateForecastIcon() {
+  const iconElementForWeatherIcon = document.querySelector(".weather-icon i");
+  const iconClassForWeatherIcon = updateIconFromDescription(
+    weather.description
+  );
+  iconElementForWeatherIcon.className = `bi ${iconClassForWeatherIcon}`;
+}
+
 function displayWeather() {
-  locationElement.innerHTML = `<i class="bi bi-geo-alt"></i> <span>${weather.city}, ${weather.state}</span>`;
-  tempElement.innerHTML = `${weather.temperature.value}°<span>F</span>`;
-  descElement.innerHTML = weather.description;
-  humidityElement.innerHTML = `<i class="bi bi-water"></i><span>${weather.humidity}%</span>`;
-  chanceOfRainElement.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i><span>${weather.chanceOfRain}%</span>`;
-  windSpeedElement.innerHTML = `<i class="bi bi-wind weather-info-icon"></i> ${weather.windSpeed} ${weather.windDirection}`;
-  timestampElement.innerHTML = `<span>${weather.timestamp}</span>`;
+  elements.location.innerHTML = `${weather.city}, ${weather.state}`;
+  elements.temp.innerHTML = `${weather.temperature.value}°<span class="fahrenheit-symbol">F</span>`;
+  elements.shortForecast.innerHTML = weather.description;
+  elements.humidity.innerHTML = `<i class="bi bi-water weather-info-icon"></i><span>${weather.humidity}%</span><div class="small-text">Humidity</div>`;
+  elements.chanceOfRain.innerHTML = `<i class="bi bi-cloud-rain weather-info-icon"></i><span>${weather.chanceOfRain}%</span><div class="small-text">Chance of Rain</div>`;
+  elements.windSpeed.innerHTML = `<i class="bi bi-wind weather-info-icon"></i> ${weather.windSpeed} ${weather.windDirection}<div class="small-text">Wind Speed</div>`;
+  elements.timestamp.innerHTML = `<span>${weather.timestamp}</span>`;
+}
+
+function handleFetchError(error) {
+  console.error("Fetch error:", error);
+  // Handle the error in a user-friendly way
 }
 
 // BOOTSTRAP WEATHER ICONS ////////////////////////

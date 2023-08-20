@@ -1,0 +1,33 @@
+.location {
+  display: flex;
+  text-align: center;
+  font-weight: 600;
+  margin: 0;
+  padding-top: 20px;
+  text-align: left;
+  font-size: 1.8em;
+}
+
+.notification {
+  /* background-color: #f8d7da; */
+  display: none;
+}
+
+.notification p {
+  color: #721c24;
+  font-size: 1.2em;
+  margin: 0;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.short-forecast p {
+  margin: 0 auto;
+  text-align: left;
+}
+
+.timestamp {
+  margin: 0 auto;
+  text-align: left;
+  font-size: 0.7em;
+}
