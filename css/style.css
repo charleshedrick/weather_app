@@ -87,7 +87,7 @@ body {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  width: 80vw;
+  width: 90vw;
 }
 
 .weather-info-item {
@@ -97,21 +97,12 @@ body {
   border: 3px solid #5b497b;
   display: flex;
   flex-direction: column;
-  height: 90px;
+  height: 100px;
   justify-content: space-between;
   padding: 7px;
-  width: 90px;
-}
-.weather-info-itemsm .large {
-  min-width: 90px;
-  max-width: 105px;
-}
-.weather-info-itemsmlg .large {
-  min-width: 90px;
-  max-width: 105px;
+  width: 100px;
 }
 
-/* WEEKLY FORECAST */
 .hourly-forecast {
   align-items: center;
   display: flex;
